@@ -24,6 +24,9 @@ public class GamePanel extends JPanel implements ActionListener {
     Timer timer;
     Random random;
     static boolean gameOn = false;
+    static boolean fail = false;
+
+
 
 
     GamePanel(){
@@ -38,6 +41,7 @@ public class GamePanel extends JPanel implements ActionListener {
     public void startGame(){
          newApple();
          running = true;
+         fail= false;
          timer(DELAY);
     }
 
@@ -53,7 +57,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
     public void draw (Graphics g){
 
-        if (running) {
+        if (!fail) {
             //Draws a gird
             for (int i = 0; i < (SCREEN_HEIGHT / UNIT_SIZE); i++) {
                 g.drawLine(i * UNIT_SIZE, 0, i * UNIT_SIZE, SCREEN_HEIGHT);
@@ -68,7 +72,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 //Head
                 if (i == 0) {
                     g.setColor(Color.red);
-                    g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+                    g.fillOval(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
                 }
                 // Body
                 else {
@@ -76,7 +80,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
                     //Rainbow snake
                     // g.setColor(new Color(random.nextInt(255),random.nextInt(255),random.nextInt(255)));
-                    g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+                    g.fillOval(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
                 }
                 //Snake Color
                 g.setColor(Color.green);
@@ -84,7 +88,9 @@ public class GamePanel extends JPanel implements ActionListener {
                 FontMetrics metrics = getFontMetrics(g.getFont());
                 g.drawString("Score: " + applesEaten ,(SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten ))/2, g.getFont().getSize());
             }
-        }else gameOver(g);
+        }else {
+            gameOver(g);
+        }
     }
 
     //Generates a new Apple
@@ -115,6 +121,7 @@ public class GamePanel extends JPanel implements ActionListener {
                 break;
         }
 
+
     }
 
     // Pause and resume
@@ -131,75 +138,99 @@ public class GamePanel extends JPanel implements ActionListener {
 
     //Checks if the snake and the apple are in the same spot if that is the case adds a body-part to the snake and increases the score and the speed of the game
     public void checkApple(){
-        if ((x[0] == appleX) && (y[0] == appleY)){
-            bodyParts++;
-            applesEaten++;
-            if (DELAY >= 20){
-                DELAY = DELAY -1;
-                timer.setDelay(DELAY);
+
+            if ((this.x[0] == this.appleX) && (this.y[0] == this.appleY)) {
+                bodyParts++;
+                applesEaten++;
+                if (DELAY >= 20) {
+                    DELAY = DELAY - 1;
+                    timer.setDelay(DELAY);
+                }
+                newApple();
             }
-            newApple();
-        }
+
+
     }
     // Collisions with walls
     public void checkCollisions(){
+
         for (int i = bodyParts; i > 0; i--){
             if (( x[0]== x[i]) && (y[0] == y[i])){
-                running = false;
+                fail = true;
             }
         }
         // left wall
         if(x[0] < 0){
-            running = false;
+            fail = true;
         }
         //right wall
         if (x[0] > SCREEN_WIDTH ){
-            running = false;
+            fail = true;
         }
         // top wall
         if(y[0] < 0){
-            running = false;
+            fail = true;
         }
         //bottom wall
         if (y[0] > SCREEN_HEIGHT ){
-            running = false;
+            fail = true;
         }
         //Stops the game after the collision
-        if (!running){
-            timer.restart();
+        if (fail){
+
+            timer.stop();
         }
 
     }
     // Game over screen
     public void gameOver (Graphics g){
+
         //Game over
         g.setColor(Color.red);
         g.setFont(new Font("Ink Free", Font.BOLD, 75));
         FontMetrics metrics1 = getFontMetrics(g.getFont());
-        g.drawString("Game Over",(SCREEN_WIDTH - metrics1.stringWidth("Game Over"))/2, SCREEN_HEIGHT/3);
+        g.drawString("Game Over", (SCREEN_WIDTH - metrics1.stringWidth("Game Over")) / 2, SCREEN_HEIGHT / 3);
 
         g.setColor(Color.red);
         g.setFont(new Font("Ink Free", Font.BOLD, 50));
         FontMetrics metrics2 = getFontMetrics(g.getFont());
-        g.drawString("Press Enter To Play Again",(SCREEN_WIDTH - metrics2.stringWidth("Press Enter To Play Again"))/2, SCREEN_HEIGHT/2);
+        g.drawString("Press Enter To Play Again", (SCREEN_WIDTH - metrics2.stringWidth("Press Enter To Play Again")) / 2, SCREEN_HEIGHT / 2);
 
         //SCORE
         g.setColor(Color.green);
         g.setFont(new Font("Ink Free", Font.BOLD, 40));
         FontMetrics metrics3 = getFontMetrics(g.getFont());
-        g.drawString("Score: " + applesEaten,(SCREEN_WIDTH - metrics3.stringWidth("Score: " + applesEaten))/2, g.getFont().getSize());
-    }
+        g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics3.stringWidth("Score: " + applesEaten)) / 2, g.getFont().getSize());
+
+
+   }
+
+   public void resetGame(){
+        startGame();
+        repaint();
+        bodyParts = 6;
+        applesEaten = 0;
+        DELAY = 75 ;
+        direction = 'R';
+        gameOn = false;
+        fail = false;
+        x[0] = 1;
+        y[0] = 1;
+
+
+   }
 
     @Override
     public void actionPerformed(ActionEvent e){
-        if (running){
-            move();
+        if (!fail){
             checkApple();
+            move();
             checkCollisions();
         }
-        repaint();
 
+        repaint();
     }
+
 
     //Controls for the game  movement, pause, resume and restart
     public class MykeyAdaper extends KeyAdapter {
@@ -246,17 +277,11 @@ public class GamePanel extends JPanel implements ActionListener {
                     }
                     break;
                 case KeyEvent.VK_ENTER:
-                    if (!running){
-                    new GameFrame();
+                    if (fail){
+                        new GameFrame();
+
                     }
             }
-
         }
     }
-
-
-
-
-
-
 }
