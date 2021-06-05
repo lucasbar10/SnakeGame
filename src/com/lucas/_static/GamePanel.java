@@ -60,13 +60,18 @@ public class GamePanel extends JPanel implements ActionListener {
 
         if (running) {
             //Draws a gird
-            for (int i = 0; i < (SCREEN_HEIGHT / UNIT_SIZE); i++) {
+            /*for (int i = 0; i < (SCREEN_HEIGHT / UNIT_SIZE); i++) {
                 g.drawLine(i * UNIT_SIZE, 0, i * UNIT_SIZE, SCREEN_HEIGHT);
                 g.drawLine(0, i * UNIT_SIZE, SCREEN_WIDTH, i * UNIT_SIZE);
-            }
+            }*/
             // Draw the Apple
             g.setColor(Color.red);
             g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE);
+
+            g.setColor(Color.white);
+            g.setFont(new Font("Ink Free", Font.BOLD, 40));
+            FontMetrics metrics = getFontMetrics(g.getFont());
+            g.drawString("Score: " + applesEaten ,(SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten ))/2, g.getFont().getSize());
 
             //Draw Snake Body
             for (int i = 0; i < bodyParts; i++) {
@@ -84,9 +89,6 @@ public class GamePanel extends JPanel implements ActionListener {
                 }
                 //Snake Color
             }
-                g.setFont(new Font("Ink Free", Font.BOLD, 40));
-                FontMetrics metrics = getFontMetrics(g.getFont());
-                g.drawString("Score: " + applesEaten ,(SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten ))/2, g.getFont().getSize());
 
         }else gameOver(g);
     }
