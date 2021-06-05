@@ -29,7 +29,7 @@ public class GamePanel extends JPanel implements ActionListener {
     GamePanel(){
         random = new Random();
         this.setPreferredSize( new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
-        this.setBackground(Color.gray);
+        this.setBackground(Color.black);
         this.setFocusable(true);
         this.addKeyListener(new MykeyAdaper());
         startGame();
@@ -67,13 +67,15 @@ public class GamePanel extends JPanel implements ActionListener {
             for (int i = 0; i < bodyParts; i++) {
                 //Head
                 if (i == 0) {
-                    g.setColor(Color.black);
+                    g.setColor(Color.red);
                     g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
                 }
                 // Body
                 else {
                     g.setColor(new Color(45, 180, 0));
-                    g.setColor(new Color(random.nextInt(255),random.nextInt(255),random.nextInt(255)));
+
+                    //Rainbow snake
+                    // g.setColor(new Color(random.nextInt(255),random.nextInt(255),random.nextInt(255)));
                     g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
                 }
                 //Snake Color
