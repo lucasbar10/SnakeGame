@@ -24,12 +24,10 @@ public class GamePanel extends JPanel implements ActionListener {
     Timer timer;
     Random random;
     static boolean gameOn = false;
-    static boolean fail = false;
 
 
-
-
-    GamePanel(){
+    GamePanel()
+    {
         random = new Random();
         this.setPreferredSize( new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
         this.setBackground(Color.black);
@@ -38,26 +36,29 @@ public class GamePanel extends JPanel implements ActionListener {
         startGame();
     }
 
-    public void startGame(){
-         newApple();
-         running = true;
-         fail= false;
-         timer(DELAY);
+    public void startGame()
+    {
+        newApple();
+        running = true;
+        timer(DELAY);
     }
 
-    public void timer (int d){
+    public void timer (int d)
+    {
         timer = new Timer(d, this);
         timer.start();
     }
 
-    public void paintComponent(Graphics g){
+    public void paintComponent(Graphics g)
+    {
         super.paintComponent(g);
         draw(g);
     }
 
-    public void draw (Graphics g){
+    public void draw (Graphics g)
+    {
 
-        if (!fail) {
+        if (running) {
             //Draws a gird
             for (int i = 0; i < (SCREEN_HEIGHT / UNIT_SIZE); i++) {
                 g.drawLine(i * UNIT_SIZE, 0, i * UNIT_SIZE, SCREEN_HEIGHT);
@@ -71,37 +72,36 @@ public class GamePanel extends JPanel implements ActionListener {
             for (int i = 0; i < bodyParts; i++) {
                 //Head
                 if (i == 0) {
-                    g.setColor(Color.red);
+                    g.setColor(Color.green);
                     g.fillOval(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
                 }
                 // Body
                 else {
-                    g.setColor(new Color(45, 180, 0));
-
+                    g.setColor(Color.blue);
                     //Rainbow snake
                     // g.setColor(new Color(random.nextInt(255),random.nextInt(255),random.nextInt(255)));
                     g.fillOval(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
                 }
                 //Snake Color
-                g.setColor(Color.green);
+            }
                 g.setFont(new Font("Ink Free", Font.BOLD, 40));
                 FontMetrics metrics = getFontMetrics(g.getFont());
                 g.drawString("Score: " + applesEaten ,(SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten ))/2, g.getFont().getSize());
-            }
-        }else {
-            gameOver(g);
-        }
+
+        }else gameOver(g);
     }
 
     //Generates a new Apple
-    public void newApple(){
+    public void newApple()
+    {
         appleX = random.nextInt((int)(SCREEN_WIDTH / UNIT_SIZE)) * UNIT_SIZE;
         appleY = random.nextInt((int)(SCREEN_HEIGHT/ UNIT_SIZE)) * UNIT_SIZE;
     }
 
 
     // Moves the Snake
-    public void move(){
+    public void move()
+    {
         for (int i = bodyParts ; i > 0; i--){
             x[i] = x [i-1];
             y[i] = y [i-1];
@@ -121,167 +121,163 @@ public class GamePanel extends JPanel implements ActionListener {
                 break;
         }
 
-
     }
 
     // Pause and resume
-    public void pause() {
+    public void pause()
+    {
         GamePanel.gameOn = false;
         timer.stop();
     }
 
-    public void resume() {
+    public void resume()
+    {
         GamePanel.gameOn = true;
         timer.start();
     }
 
 
     //Checks if the snake and the apple are in the same spot if that is the case adds a body-part to the snake and increases the score and the speed of the game
-    public void checkApple(){
-
-            if ((this.x[0] == this.appleX) && (this.y[0] == this.appleY)) {
-                bodyParts++;
-                applesEaten++;
-                if (DELAY >= 20) {
-                    DELAY = DELAY - 1;
-                    timer.setDelay(DELAY);
-                }
-                newApple();
+    public void checkApple()
+    {
+        if ((x[0] == appleX) && (y[0] == appleY)){
+            bodyParts++;
+            applesEaten++;
+            if (DELAY >= 20){
+                DELAY = DELAY -1;
+                timer.setDelay(DELAY);
             }
-
-
+            newApple();
+        }
     }
-    // Collisions with walls
-    public void checkCollisions(){
 
+    // Collisions with walls
+    public void checkCollisions()
+    {
         for (int i = bodyParts; i > 0; i--){
             if (( x[0]== x[i]) && (y[0] == y[i])){
-                fail = true;
+                running = false;
             }
         }
         // left wall
         if(x[0] < 0){
-            fail = true;
+            running = false;
         }
         //right wall
         if (x[0] > SCREEN_WIDTH ){
-            fail = true;
+            running = false;
         }
         // top wall
         if(y[0] < 0){
-            fail = true;
+            running = false;
         }
         //bottom wall
         if (y[0] > SCREEN_HEIGHT ){
-            fail = true;
+            running = false;
         }
         //Stops the game after the collision
-        if (fail){
-
-            timer.stop();
+        if (!running){
+            timer.restart();
         }
 
     }
-    // Game over screen
-    public void gameOver (Graphics g){
 
+    // Game over screen
+    public void gameOver (Graphics g)
+    {
         //Game over
         g.setColor(Color.red);
         g.setFont(new Font("Ink Free", Font.BOLD, 75));
         FontMetrics metrics1 = getFontMetrics(g.getFont());
-        g.drawString("Game Over", (SCREEN_WIDTH - metrics1.stringWidth("Game Over")) / 2, SCREEN_HEIGHT / 3);
+        g.drawString("Game Over",(SCREEN_WIDTH - metrics1.stringWidth("Game Over"))/2, SCREEN_HEIGHT/3);
 
         g.setColor(Color.red);
         g.setFont(new Font("Ink Free", Font.BOLD, 50));
         FontMetrics metrics2 = getFontMetrics(g.getFont());
-        g.drawString("Press Enter To Play Again", (SCREEN_WIDTH - metrics2.stringWidth("Press Enter To Play Again")) / 2, SCREEN_HEIGHT / 2);
+        g.drawString("Press Enter To Play Again",(SCREEN_WIDTH - metrics2.stringWidth("Press Enter To Play Again"))/2, SCREEN_HEIGHT/2);
 
         //SCORE
         g.setColor(Color.green);
         g.setFont(new Font("Ink Free", Font.BOLD, 40));
         FontMetrics metrics3 = getFontMetrics(g.getFont());
-        g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics3.stringWidth("Score: " + applesEaten)) / 2, g.getFont().getSize());
-
-
-   }
-
-   public void resetGame(){
-        startGame();
-        repaint();
-        bodyParts = 6;
-        applesEaten = 0;
-        DELAY = 75 ;
-        direction = 'R';
-        gameOn = false;
-        fail = false;
-        x[0] = 1;
-        y[0] = 1;
-
-
-   }
+        g.drawString("Score: " + applesEaten,(SCREEN_WIDTH - metrics3.stringWidth("Score: " + applesEaten))/2, g.getFont().getSize());
+    }
 
     @Override
-    public void actionPerformed(ActionEvent e){
-        if (!fail){
-            checkApple();
+    public void actionPerformed(ActionEvent e)
+    {
+        if (running){
             move();
+            checkApple();
             checkCollisions();
         }
-
         repaint();
     }
 
-
     //Controls for the game  movement, pause, resume and restart
-    public class MykeyAdaper extends KeyAdapter {
+    public class MykeyAdaper extends KeyAdapter
+    {
         @Override
-        public void keyPressed(KeyEvent e){
-            switch (e.getKeyCode()){
-                case KeyEvent.VK_LEFT:
-                    if (direction != 'R'){
+        public void keyPressed(KeyEvent e)
+        {
+            switch (e.getKeyCode())
+            {
+                case (KeyEvent.VK_LEFT ):
+                    if (direction != 'R')
+                    {
                         direction = 'L';
                     }break;
                 case KeyEvent.VK_RIGHT:
-                    if (direction != 'L'){
+                    if (direction != 'L')
+                    {
                         direction = 'R';
                     }break;
                 case KeyEvent.VK_UP:
-                    if (direction != 'D'){
+                    if (direction != 'D')
+                    {
                         direction = 'U';
                     }break;
                 case KeyEvent.VK_DOWN:
-                    if (direction != 'U'){
+                    if (direction != 'U')
+                    {
                         direction = 'D';
                     }break;
                 case KeyEvent.VK_A:
-                    if (direction != 'R'){
+                    if (direction != 'R')
+                    {
                         direction = 'L';
                     }break;
                 case KeyEvent.VK_D:
-                    if (direction != 'L'){
+                    if (direction != 'L')
+                    {
                         direction = 'R';
                     }break;
                 case KeyEvent.VK_W:
-                    if (direction != 'D'){
+                    if (direction != 'D')
+                    {
                         direction = 'U';
                     }break;
                 case KeyEvent.VK_S:
-                    if (direction != 'U'){
+                    if (direction != 'U')
+                    {
                         direction = 'D';
                     }break;
                 case KeyEvent.VK_SPACE:
-                    if(GamePanel.gameOn) {
+                    if(GamePanel.gameOn)
+                    {
                         pause();
-                    } else {
+                    } else
+                        {
                         resume();
-                    }
+                        }
                     break;
                 case KeyEvent.VK_ENTER:
-                    if (fail){
+                    if (!running)
+                    {
                         new GameFrame();
-
                     }
             }
+
         }
     }
 }
